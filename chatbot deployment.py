@@ -14,17 +14,7 @@ nltk.download('punkt')
 stemmer =  LancasterStemmer()
 model_intity = keras.models.load_model('model.h5')
 labels =  {0:'Clinic',1: 'Hotel',2: 'Restaurant',3: 'conversation',4: 'currency',5: 'goodbye',6: 'greeting',7: 'info',8:'police',9:'thanks',10:'weather'}
-reponses = {0:['Clinic'],
-1 : [" clinic"],
-2:["Restaurant"],
-3:["good hope you are as well"],
-4:["Currency"],
-5: ["See you later thanks for visiting", "Have a nice day", "Bye! Come back again soon."],
-6: ["Hello, thanks for visiting", "Good to see you again", "Hi there, how can I help?"] , 
-7: ["search on this topic"],
-8: ["call the police on 122"],
-9 : ["Happy to help!", "Any time!", "My pleasure" ,"You are welcome"] ,
-10: ["weather"]}
+
 
 def bag_of_words(s, words):
     bag = [0 for _ in range(len(words))]
