@@ -3,18 +3,17 @@ import numpy as np
 import tensorflow as tf
 import random
 import keras
-import spacy 
-from keras.models import Sequential
-from keras.layers import Dense, Activation, Dropout
 from nltk.stem.lancaster import LancasterStemmer
 import json
-from tensorflow.keras.models  import load_model
+import spacy
 
+
+model_intity = keras.models.load_model('model.h5')
+model_entity = spacy.load('visit_egypt')
+words =  ["'s", '50', 'a', 'about', 'am', 'anyon', 'ar', 'artifact', 'be', 'bye', 'chang', 'clin', 'convert', 'dang', 'day', 'do', 'doll', 'eat', 'emerg', 'euro', 'find', 'forecast', 'going', 'good', 'goodby', 'hello', 'help', 'hi', 'hotel', 'how', 'i', 'in', 'insight', 'is', 'it', 'know', 'lat', 'lik', 'loc', 'me', 'medicin', 'nee', 'next', 'now', 'of', 'pol', 'pound', 'rain', 'resta', 'right', 'see', 'sleep', 'sup', 'tel', 'temp', 'thank', 'that', 'the', 'ther', 'to', 'tomorrow', 'top', 'want', 'weath', 'what', 'you']
+labels =  {0:'Clinic',1: 'Hotel',2: 'Restaurant',3: 'conversation',4: 'currency',5: 'goodbye',6: 'greeting',7: 'info',8:'police',9:'thanks',10:'weather'}
 nltk.download('punkt')
 stemmer =  LancasterStemmer()
-model_intity = keras.models.load_model('model.h5')
-labels =  {0:'Clinic',1: 'Hotel',2: 'Restaurant',3: 'conversation',4: 'currency',5: 'goodbye',6: 'greeting',7: 'info',8:'police',9:'thanks',10:'weather'}
-
 
 def bag_of_words(s, words):
     bag = [0 for _ in range(len(words))]
@@ -28,31 +27,19 @@ def bag_of_words(s, words):
                 bag[i] = 1
     return np.array(bag)
 
+
+
 def net(word) :
-     sentnece = [{"response": "" , "reco": ""}]
+     sentence = []
      for ent in model_entity(word).ents:
-        sentnece[0]["reco"]=ent.text
-     return sentnece
+        sentence.append({"Name": ent.text , "Label": ent.label_})
+     return sentence
+
 
 def chat():
-    print("Start talking with the bot (type quit to stop)!")
-    while True:
-        inputt =  input()
-        if inputt.lower() == "quit":
-            break
-        bag =  bag_of_words(inputt, words)
-        print(bag.shape)
-        sentnece =  net(inputt) 
-        results = model_intity.predict(np.array([bag]))
-        print(results)
-        results_index = np.argmax(results)
-        tag = labels[results_index] 
-        if  results_index == 3 :
-             curr = sentnece[0]["reco"]
-             curr =  curr.split(' ')[0]
-             sentnece[0]['response'] =  int(curr) *16
-             sentnece[0]["reco"] =  'Money '
-             return sentnece
-        else:
-           sentnece[0]['response'] = random.choice(reponses[results_index])
-           return sentnece
+        wordbag =  bag_of_words(inp, words)
+        recognation =  net(inp) 
+        class_intent = model_intity.predict(np.array([wordbag]))
+        class_index = np.argmax(class_intent)
+        tag = labels[class_index]
+        return {"tag":tag , "recognation":recognation}
